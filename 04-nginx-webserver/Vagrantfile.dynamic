@@ -1,0 +1,33 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+VAGRANTFILE_API_VERSION = "2"
+servers=[
+  #reverse proxxy
+  {
+    :hostname => "SLNGINXWEB01"
+    :ip => "192.17.0.5",
+    :box => "centos/7",
+    :ram => 256,
+    :cpu => 2,
+    :ssh_host=> 10175
+  }
+]
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  servers.each do |machine|
+    config.vm.define machine[:hostname] do |node|
+        node.vm.box = machine[:box]
+        node.vm.hostname = machine[:hostname]
+
+        node.vm.network :private_network, ip:  machine[:ip]
+        node.vm.network :forwarded_port, guest: 22, host:  machine[:ssh_host], id: "ssh"
+
+        node.vm.provider :virtualbox do |v|
+          v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+          v.customize ["modifyvm", :id, "--memory", machine[:ram]]
+          v.customize ["modifyvm", :id, "--name", machine[:hostname]]
+        end
+      end
+  end
+end

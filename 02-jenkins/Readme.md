@@ -1,0 +1,1 @@
+Sample Jenkins server setup on vagrant.
